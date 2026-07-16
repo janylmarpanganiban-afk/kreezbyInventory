@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "883468275809",
+    "project_id": "kreezby-bakeshop-df589",
+    "storage_bucket": "kreezby-bakeshop-df589.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:883468275809:android:49e27b633ee927b6a05a20",
+        "android_client_info": {
+          "package_name": "com.example.raymond"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAkFXuGrVyW7UnFY0V10wR7vlZMyJ1ZdiQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
