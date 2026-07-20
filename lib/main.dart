@@ -13,16 +13,27 @@ import 'providers/auth_provider.dart';
 import 'screens/reports_screen.dart';
 import 'screens/more_screen.dart';
 
+// this is the entry point of the whole app
+// we initialize firebase first before anything runs
 void main() async {
+  // makes sure flutter is ready before we touch firebase
   WidgetsFlutterBinding.ensureInitialized();
+
+  // connects to firebase using the auto-generated options (firebase_options.dart)
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // wraps the whole app with providers so any screen can access shared data
+  // think of MultiProvider as the "global state" container for the app
   runApp(
     MultiProvider(
       providers: [
+        // handles login, logout, and user role (admin vs staff)
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        // manages all inventory items — fetches from firestore on startup
         ChangeNotifierProvider(create: (_) => InventoryProvider()),
+        // manages all orders — fetches from firestore on startup
         ChangeNotifierProvider(create: (_) => OrdersProvider()),
       ],
       child: const KreezbyApp(),
@@ -30,6 +41,7 @@ void main() async {
   );
 }
 
+// root widget of the app — sets up theme and decides which screen to show first
 class KreezbyApp extends StatelessWidget {
   const KreezbyApp({super.key});
 
@@ -41,6 +53,7 @@ class KreezbyApp extends StatelessWidget {
       theme: ThemeData(
         primaryColor: const Color(0xFF0056C6),
         scaffoldBackgroundColor: const Color(0xFFF8F9FA),
+        // inter font from google fonts for a cleaner look
         textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme),
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFF0056C6),
@@ -54,6 +67,10 @@ class KreezbyApp extends StatelessWidget {
           iconTheme: IconThemeData(color: Colors.white),
         ),
       ),
+
+      // this is the key part — listens to auth state
+      // if user is logged in -> show MainShell (tabbar + screens)
+      // if not logged in -> show LoginScreen
       home: Consumer<AuthProvider>(
         builder: (context, auth, _) {
           return auth.isAuthenticated ? const MainShell() : const LoginScreen();
@@ -63,6 +80,11 @@ class KreezbyApp extends StatelessWidget {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// TABBAR / BOTTOM NAVIGATION
+// this is the main shell that holds all 5 tabs
+// it keeps track of which tab is currently selected using _currentIndex
+// ─────────────────────────────────────────────────────────────────────────────
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
 
@@ -71,20 +93,26 @@ class MainShell extends StatefulWidget {
 }
 
 class _MainShellState extends State<MainShell> {
+  // tracks which tab is active (0 = dashboard, 1 = inventory, etc.)
   int _currentIndex = 0;
 
+  // list of all tab screens — order matches the tab bar items below
   final List<Widget> _screens = [
-    const DashboardScreen(),
-    const InventoryScreen(),
-    const OrdersScreen(),
-    const ReportsScreen(),
-    const MoreScreen(),
+    const DashboardScreen(),   // tab 0: home / overview
+    const InventoryScreen(),   // tab 1: inventory list
+    const OrdersScreen(),      // tab 2: orders history + create order
+    const ReportsScreen(),     // tab 3: sales and stock reports
+    const MoreScreen(),        // tab 4: profile, help, logout
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // shows the currently selected screen
       body: _screens[_currentIndex],
+
+      // tabbar — this is what you tap to switch screens
+      // onTap updates _currentIndex which triggers a rebuild showing the new screen
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
